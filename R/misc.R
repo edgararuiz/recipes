@@ -2,8 +2,36 @@ filter_terms <- function(x, ...) {
   UseMethod("filter_terms")
 }
 
-## Buckets variables into discrete, mutally exclusive types
 get_types <- function(x) {
+  UseMethod("get_types")
+}
+
+get_types.tbl_spark <- function(x) {
+  type_map <- c(
+    BooleanType = "logical",
+    ByteType = "numeric",
+    ShortType = "numeric",
+    IntegerType = "numeric",
+    FloatType = "numeric",
+    DoubleType = "numeric",
+    LongType = "numeric",
+    StringType = "nominal",
+    BinaryType = "nominal",
+    TimestampType = "date",
+    DateType = "date"
+  )
+
+  table_schema <- sdf_schema(x)
+
+  map_dfr(table_schema, ~ {
+    match_type <- names(type_map) == .x$type
+    new_type <- type_map[match_type]
+    tibble(variable = .x$name, type = new_type)
+  })
+}
+
+## Buckets variables into discrete, mutally exclusive types
+get_types.data.frame <- function(x) {
   var_types <-
     c(
       character = "nominal",

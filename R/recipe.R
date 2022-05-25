@@ -99,6 +99,7 @@ recipe.data.frame <-
            ...,
            vars = NULL,
            roles = NULL) {
+
     if (!is.null(formula)) {
       if (!is.null(vars)) {
         rlang::abort(
@@ -125,18 +126,9 @@ recipe.data.frame <-
       vars <- colnames(x)
     }
 
-    if (!is_tibble(x)) {
-      x <- as_tibble(x)
-    }
-
     if (any(table(vars) > 1)) {
       rlang::abort("`vars` should have unique members")
     }
-    if (any(!(vars %in% colnames(x)))) {
-      rlang::abort("1+ elements of `vars` are not in `x`")
-    }
-
-    x <- x[, vars]
 
     var_info <- tibble(variable = vars)
 
@@ -155,17 +147,29 @@ recipe.data.frame <-
       var_info$role <- NA_character_
     }
 
+    if (is.data.frame(x)) {
+      x <- as_tibble(x)
+    }
+
+    if (any(!(vars %in% colnames(x)))) {
+      rlang::abort("1+ elements of `vars` are not in `x`")
+    }
+
+    x <- select(x, !! vars)
+
     ## Add types
     var_info <- full_join(get_types(x), var_info, by = "variable")
     var_info$source <- "original"
 
     # assign case weights
-    case_weights_cols <- map_lgl(x, hardhat::is_case_weights)
-    case_weights_n <- sum(case_weights_cols, na.rm = TRUE)
-    if (case_weights_n > 1) {
-      too_many_case_weights(case_weights_n)
+    if(is_tibble(x)) {
+      case_weights_cols <- map_lgl(x, hardhat::is_case_weights)
+      case_weights_n <- sum(case_weights_cols, na.rm = TRUE)
+      if (case_weights_n > 1) {
+        too_many_case_weights(case_weights_n)
+      }
+      var_info$role[case_weights_cols] <- "case_weights"
     }
-    var_info$role[case_weights_cols] <- "case_weights"
 
     ## Return final object of class `recipe`
     out <- list(
@@ -207,6 +211,11 @@ recipe.matrix <- function(x, ...) {
   x <- as.data.frame(x)
   recipe.data.frame(x, ...)
 }
+
+#' @rdname recipe
+#' @export
+recipe.tbl_lazy <- recipe.data.frame
+
 
 form2args <- function(formula, data, ...) {
   if (!is_formula(formula)) {
