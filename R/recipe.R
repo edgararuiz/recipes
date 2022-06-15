@@ -115,7 +115,10 @@ recipe.data.frame <-
     if (is.null(vars))
       vars <- colnames(x)
 
-    if (!is_tibble(x))
+    # Other internal recipe methods pass a data.frame to this function
+    # as_tibble() will collect all of the data from remote tables, so it is
+    # best to avoid unless it is a data.frame object
+    if (is.data.frame(x))
       x <- as_tibble(x)
 
     if (any(table(vars) > 1))
@@ -123,7 +126,7 @@ recipe.data.frame <-
     if (any(!(vars %in% colnames(x))))
       rlang::abort("1+ elements of `vars` are not in `x`")
 
-    x <- x[, vars]
+    x <- select(x, !! vars)
 
     var_info <- tibble(variable = vars)
 
@@ -139,7 +142,7 @@ recipe.data.frame <-
       var_info$role <- NA
 
     ## Add types
-    var_info <- full_join(get_types(x), var_info, by = "variable")
+    var_info <- full_join(recipes_translate_types(x), var_info, by = "variable")
     var_info$source <- "original"
 
     ## Return final object of class `recipe`
@@ -230,6 +233,9 @@ inline_check <- function(x) {
   invisible(x)
 }
 
+#' @rdname recipe
+#' @export
+recipe.tbl_lazy <- recipe.data.frame
 
 #' @aliases prep prep.recipe
 #' @param x an object
@@ -378,7 +384,7 @@ prep.recipe <-
                info = x$term_info)
         training <- bake(x$steps[[i]], new_data = training)
         x$term_info <-
-          merge_term_info(get_types(training), x$term_info)
+          merge_term_info(recipes_translate_types(training), x$term_info)
 
         # Update the roles and the term source
         if (!is.na(x$steps[[i]]$role)) {

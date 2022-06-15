@@ -6,6 +6,7 @@
 \alias{recipe.formula}
 \alias{recipe.data.frame}
 \alias{recipe.matrix}
+\alias{recipe.tbl_lazy}
 \title{Create a recipe for preprocessing data}
 \usage{
 recipe(x, ...)
@@ -17,6 +18,8 @@ recipe(x, ...)
 \method{recipe}{formula}(formula, data, ...)
 
 \method{recipe}{matrix}(x, ...)
+
+\method{recipe}{tbl_lazy}(x, formula = NULL, ..., vars = NULL, roles = NULL)
 }
 \arguments{
 \item{x, data}{A data frame or tibble of the \emph{template} data set
@@ -231,8 +234,8 @@ pca_rec
 Note that the estimated recipe shows the actual column names captured by
 the selectors.
 
-You can \code{\link[=tidy.recipe]{tidy.recipe()}} a recipe, either when it is
-prepped or unprepped, to learn more about its components.\if{html}{\out{<div class="sourceCode r">}}\preformatted{tidy(pca_rec)
+You can [tidy.recipe()] a recipe, either when it is prepped or
+unprepped, to learn more about its components.\if{html}{\out{<div class="sourceCode r">}}\preformatted{tidy(pca_rec)
 }\if{html}{\out{</div>}}\preformatted{## # A tibble: 2 x 6
 ##   number operation type      trained skip  id             
 ##    <int> <chr>     <chr>     <lgl>   <lgl> <chr>          
@@ -242,9 +245,9 @@ prepped or unprepped, to learn more about its components.\if{html}{\out{<div cla
 
 You can also \code{tidy()} recipe \emph{steps} with a \code{number} or \code{id} argument.
 
-To apply the prepped recipe to a data set, the \code{\link[=bake]{bake()}}
-function is used in the same manner that \code{predict()} would be for
-models. This applies the estimated steps to any data set.\if{html}{\out{<div class="sourceCode r">}}\preformatted{bake(pca_rec, head(biomass_te))
+To apply the prepped recipe to a data set, the [bake()] function is
+used in the same manner that \code{predict()} would be for models. This
+applies the estimated steps to any data set.\if{html}{\out{<div class="sourceCode r">}}\preformatted{bake(pca_rec, head(biomass_te))
 }\if{html}{\out{</div>}}\preformatted{## # A tibble: 6 x 6
 ##     HHV    PC1    PC2     PC3     PC4     PC5
 ##   <dbl>  <dbl>  <dbl>   <dbl>   <dbl>   <dbl>
@@ -258,6 +261,16 @@ models. This applies the estimated steps to any data set.\if{html}{\out{<div cla
 
 In general, the workflow interface to recipes is recommended for most
 applications.
+
+[biomass![dataset == "Training",]: R:biomass](https://latex.codecogs.com/png.image?\%5Cdpi\%7B110\%7D&space;\%5Cbg_white&space;dataset\%20\%3D\%3D\%20\%22Training\%22\%2C\%5D\%3A\%20R\%3Abiomass "dataset == "Training",]: R:biomass")dataset\%20==\%20\%22Training\%22,
+[biomass![dataset == "Testing",]: R:biomass](https://latex.codecogs.com/png.image?\%5Cdpi\%7B110\%7D&space;\%5Cbg_white&space;dataset\%20\%3D\%3D\%20\%22Testing\%22\%2C\%5D\%3A\%20R\%3Abiomass "dataset == "Testing",]: R:biomass")dataset\%20==\%20\%22Testing\%22,
+\code{\link[=prep]{prep()}}: R:prep() \code{\link[=prep]{prep()}}: R:prep()
+[tidy.recipe()]: R:tidy.recipe() [bake()]: R:bake()
+
+[dataset == "Training",]: R:dataset\%20==\%20\%22Training\%22,\%5C
+[dataset == "Testing",]: R:dataset\%20==\%20\%22Testing\%22,\%5C
+\code{\link[=prep]{prep()}}: R:prep()
+\code{\link[=prep]{prep()}}: R:prep()
 }
 
 }
