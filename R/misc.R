@@ -44,6 +44,12 @@ recipes_translate_types.data.frame <- function(x) {
   tibble(variable = names(res), type = unname(res))
 }
 
+recipes_translate_types.tbl_lazy <- function(x) {
+  top10 <- head(x, 10)
+  x <- collect(top10)
+  recipes_translate_types.data.frame(x)
+}
+
 filter_terms <- function(x, ...)
   UseMethod("filter_terms")
 
